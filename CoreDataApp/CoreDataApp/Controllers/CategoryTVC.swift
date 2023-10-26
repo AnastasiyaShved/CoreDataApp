@@ -14,12 +14,11 @@ class CategoryTVC: UITableViewController {
     
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
-
     override func viewDidLoad() {
         super.viewDidLoad()
         getData()
     }
-
+    
     @IBAction func addNewCategory(_ sender: UIBarButtonItem) {
         let alert = UIAlertController(title: "Add new category", message: "", preferredStyle: .alert)
         ///дабавлям TextField в AlertController
@@ -50,11 +49,10 @@ class CategoryTVC: UITableViewController {
         self.present(alert, animated: true)
     }
     // MARK: - Table view data source
-
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return categories.count
     }
-
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
@@ -62,6 +60,7 @@ class CategoryTVC: UITableViewController {
         cell.textLabel?.text = category.name
         return cell
     }
+    
     // MARK: - Table view delegate
     
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -90,15 +89,19 @@ class CategoryTVC: UITableViewController {
             }
         }
     }
-
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "goToItems", sender: nil)
     }
     
+    // MARK: - Navigation
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let toDoListTVC = segue.destination as? ToDoListTVC,
+           let indexPath = tableView.indexPathForSelectedRow {
+            toDoListTVC.selectedCategory = categories[indexPath.row]
+        }
+    }
     
     // MARK: - CoreData
     
@@ -117,7 +120,7 @@ class CategoryTVC: UITableViewController {
             fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
         }
     }
-    
+    //сохранение изменение в БД
     private func saveCategories() {
         do {
             try context.save()
@@ -127,12 +130,3 @@ class CategoryTVC: UITableViewController {
         }
     }
 }
-
-
-//                метод для добавления новой категории в БД
-//                self.saveCategories()
-
-
-
-
-// NSFetchRequest<CategoryModel>  - почему такие скобки?
