@@ -62,44 +62,35 @@ class CategoryTVC: UITableViewController {
         cell.textLabel?.text = category.name
         return cell
     }
+    // MARK: - Table view delegate
     
-
-    /*
-    // Override to support conditional editing of the table view.
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
         return true
     }
-    */
-
-    /*
-    // Override to support editing the table view.
+    
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
+        if editingStyle == .delete,
+           let name = categories[indexPath.row].name
+        {
+            ///создаем запрос в БД
+            let request: NSFetchRequest <CategoryModel> = CategoryModel.fetchRequest()
+            ///создаем предикат, по которому будем искать информацию в БД
+            request.predicate = NSPredicate(format: "name==\(name)")
+            ///находим  в context все категории  по  заданному в предикате формату, изменяем занчение в context (не удалили из БД!)
+            if let categories = try? context.fetch(request) {
+                for category in categories {
+                    context.delete(category)
+                }
+                /// удаляем из массива
+                self.categories.remove(at: indexPath.row)
+                /// удаляем в БД
+                saveCategories()
+                /// удаляем из таблицы
+                tableView.deleteRows(at: [indexPath], with: .fade)
+            }
+        }
     }
-    */
 
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
@@ -107,7 +98,7 @@ class CategoryTVC: UITableViewController {
         // Get the new view controller using segue.destination.
         // Pass the selected object to the new view controller.
     }
-    */
+    
     
     // MARK: - CoreData
     
